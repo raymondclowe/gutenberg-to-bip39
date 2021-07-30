@@ -18,28 +18,22 @@ for word in document_word_list:
     clean_word_list.append(ExtractAlpha(word.lower()))
     flags_list.append(clean_word_list[-1] in bip39_word_list)
 
-
-
-# print(document_word_list)
-# print(clean_word_list)
-# print(flags_list)
-# print(sum(flags_list))
-
-outputted = 0
+outputted_seed = 0
+outputted_total = 0
 i = 0
 words11 = ""
-while outputted < 11:
+while outputted_seed < 11:
     s = document_word_list[i]
     if flags_list[i]:        
         words11 = words11 + " " + clean_word_list[i]
-        outputted = outputted + 1
+        outputted_seed = outputted_seed + 1
         s = "*" + s + "*"
 
     print(s, end =" ")
+    outputted_total = outputted_total + 1
 
     i = i + 1 
 
-print("\n")
 # Now find the 12th word
 
 import mnemonic
@@ -52,6 +46,29 @@ checksum_words = []
 for word in bip39_word_list:
     tested = words11 + ' ' + word
     if m.check(tested):
-        checksum_words.append(word)
+        if word in clean_word_list:
+            word_position = clean_word_list.index(word)
+            if word_position > outputted_total :
+                checksum_words.append((word,word_position))
 
-print(checksum_words)
+checksum_words.sort(key=lambda tup: tup[1])
+ 
+word12 = checksum_words[0][0]
+
+done_sentence = False
+last_word_outputted = False
+while not done_sentence:
+    s = document_word_list[i]
+    if clean_word_list[i] == word12:  
+        last_word_outputted = True
+
+        s = "*" + s + "*"
+
+    print(s, end =" ")
+
+    if last_word_outputted:
+        if '.' in document_word_list[i]:
+            done_sentence = True
+
+    i = i + 1 
+
